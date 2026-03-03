@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
     {
         GetInputs();
         Move();
+        Jump();
     }
 
     void GetInputs()
@@ -41,11 +42,25 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector2(walkSpeed * xAxis, rb.linearVelocity.y);
     }
 
+    private void Jump()
+    {
+        // Jump cancel — releasing space while moving up cuts the jump short
+        if (Keyboard.current.spaceKey.wasReleasedThisFrame && rb.linearVelocity.y > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
+        }
+
+        if(Keyboard.current.spaceKey.wasPressedThisFrame && Grounded())
+        {
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
+    }
+
     public bool Grounded()
     {
         if(Physics2D.Raycast(groundCheckPoint.position, Vector2.down, groundCheckY, whatIsGround) 
         || Physics2D.Raycast(groundCheckPoint.position + new Vector3(groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround)
-        || Physics2D.Raycast(groundCheckPoint.position - new Vector3(-groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround))
+        || Physics2D.Raycast(groundCheckPoint.position - new Vector3(groundCheckX, 0, 0), Vector2.down, groundCheckY, whatIsGround))
 
         {
             return true;
